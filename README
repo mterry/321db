@@ -1,0 +1,8 @@
+Projet Name:  321db
+Author:       Matthew A. Terry (terrym@uwindsor.ca)
+Date created: 10/11/09
+Description:  This is a standard relational database management system complete with a user interface for accessing, modifying, and managing the databases.
+===============================================================================
+Changelog:
+10/11/09:
+First commit: added the readme (this file) as well as constructed the directory structure.
