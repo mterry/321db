@@ -1,0 +1,9 @@
+File name:    Data Dictionary and data storage definitions
+Author:       Matthew A. Terry
+Date created: 10/11/25
+-------------------------------------------------------------------------------
+In etc/db_store, there are two sub-directories: db_dict and db_file. db_dict stores the database record definitions in an easy to read format: at the top of the file is the location of the corresponding data file, which stores information in a binary data format. The remainder of the file will be the definitions of the fields in the table: 
+  - the name of the field
+  - the storage type of the field
+  - size of the field in bytes.
+This information is necessary to have in order to parse the files stored in the directory db_file; each record in the table will be the absolute length given by the definition, with the length of each field being defined by the corresponding file in db_dict.
