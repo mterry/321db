@@ -4,6 +4,8 @@ Date created: 10/11/09
 Description:  This is a standard relational database management system complete with a user interface for accessing, modifying, and managing the databases.
 ===============================================================================
 Changelog:
+10/12/02:
+Killed Subversion repository; removed directories added for the purposes of Subversion. Added src/common and include/common for common library functions and data structures. Also began work on a C-based map data structure (include/common/cmap.h and src/common/cmap.c) which is intended to be used for the SQL parsing engine.
 10/11/25:
 Constructed Subversion repository; added directories trunk, tags, and branches; edited README
 10/11/09:
