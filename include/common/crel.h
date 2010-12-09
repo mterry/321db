@@ -44,7 +44,9 @@ struct crel
 typedef struct crel crel_t;
 
 //  function declarations
-crel_t new_relation();
+//  creating a new relational table
+crel_t new_reltable();
+
 
 
 #endif
