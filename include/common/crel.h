@@ -32,6 +32,7 @@ struct crel_attr
   char *name;
   int length;
   crel_attr_constraints_t constraints;
+  crel_attr_t next_attribute;
 };
 typedef struct crel_attr * crel_attr_t;
 
@@ -40,7 +41,7 @@ struct crel
 {
   char *name;
   char *file_loc;
-  int next_order_available;
+  int next_index;
   crel_attr_t attr_list;
 };
 typedef struct crel * crel_t;
@@ -50,17 +51,23 @@ typedef struct crel * crel_t;
 crel_t new_reltable();
 //  delete a relational table; returns the deleted table with all other
 //  references removed
-crel_t del_reltable();
+crel_t rem_reltable();
 
 //  add attribute to a table; returns 0 for successful
-int add_attribute(crel_t, crel_attr_t);
-//  remove attribute from a table; returns a pointer to the removed attribute
-crel_attr_t rem_attribute(crel_t, crel_attr_t);
+int add_attribute(crel_t, char *);
+//  remove attribute from a table by pointer; returns a pointer to the removed attribute
+crel_attr_t rem_attribute_by_pointer(crel_t, crel_attr_t);
+//  remove attribute from a table by name; returns a pointer to the removed attribute
+crel_attr_t rem_attribute_by_name(crel_t, char *);
 //  change attribute name; returns a pointer to the changed attribute
-crel_attr_t ch_attribute(crel_attr_t, char *);
+crel_attr_t ch_attribute(crel_t, char *, char *);
 //  find an attribute by name in a table
-crel_attr_t find_attribute(crel_t, char *);
+crel_attr_t find_attribute_by_name(crel_t, char *);
+//  find an attribute by index number in a table
+crel_attr_t find_attribute_by_index(crel_t, int);
 
-//  set an attribute to be a primary key; returns
-int
+//  set an attribute to be a primary key; returns 0 for successful
+int set_primary_key(crel_attr_t);
+//  remove the primary key status for an attribute; returns 0 for successful
+int rem_primary_key(crel_attr_t);
 #endif
