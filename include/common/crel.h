@@ -30,9 +30,10 @@ struct crel_attr
 {
   int index;
   char *name;
+  char *type;
   int length;
-  crel_attr_constraints_t constraints;
-  crel_attr_t next_attribute;
+  crel_attr_constraints_t constraint_list;
+  struct crel_attr *next_attribute;
 };
 typedef struct crel_attr * crel_attr_t;
 
@@ -54,7 +55,7 @@ crel_t new_reltable();
 crel_t rem_reltable();
 
 //  add attribute to a table; returns 0 for successful
-int add_attribute(crel_t, char *);
+int add_attribute(crel_t, char *, char *);
 //  remove attribute from a table by pointer; returns a pointer to the removed attribute
 crel_attr_t rem_attribute_by_pointer(crel_t, crel_attr_t);
 //  remove attribute from a table by name; returns a pointer to the removed attribute
