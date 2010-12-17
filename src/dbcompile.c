@@ -44,7 +44,7 @@ int run_dbcompile()
   refresh();
 
   mvprintw(1, 0, "Enter the full path of the definition script.");
-  mvprintw(4, 0, "Enter the full path to the database dictionary directory.");
+  mvprintw(4, 0, "OPTIONAL: Enter the full path to the database dictionary directory.");
   mvprintw(6, 0, "Press Enter on the keypad to submit, the down and up arrows to move between fields.");
   refresh();
 
@@ -101,6 +101,11 @@ int run_dbcompile()
     || ((store_path = trim(field_buffer(field[1], 0), isgraph, t)) == NULL))
   {
     return ERROR_BADTYPE;
+  }
+
+  if ((field_status(field[1])) == FALSE)
+  {
+    store_path = "../etc/db_store/";
   }
 
   mvprintw(row-1, 0, "script_path=\"%s\" and store_path=\"%s\" Press any key to continue.", script_path, store_path);
