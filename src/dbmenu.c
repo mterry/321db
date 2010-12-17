@@ -34,18 +34,18 @@ int main(int argc, char **argv)
   // wait for input from any key
   getch();
 
-  // clear the screen and reposition the cursor to (0, 0)
-  clear();
-  move(0, 0);
-  printw("Please select your choice.\n");
-  printw("0: compile a database from an existing dictionary file.\n");
-  printw("1: input records into the existing database.\n");
-  printw("2: change or delete recordst in the existing database.\n");
-  printw("3: query the existing database for information.\n");
-  printw("q: quit 321db.\n");
-
   while(1)
   {
+    // clear the screen and reposition the cursor to (0, 0)
+    clear();
+    move(0, 0);
+    printw("Please select your choice.\n");
+    printw("0: compile a database from an existing dictionary file.\n");
+    printw("1: input records into the existing database.\n");
+    printw("2: change or delete recordst in the existing database.\n");
+    printw("3: query the existing database for information.\n");
+    printw("q: quit 321db.\n");
+
     move(row-1, 0);
     printw("Enter your choice on the keyboard.\n");
     refresh();
@@ -64,16 +64,28 @@ int main(int argc, char **argv)
     else if(choice == 0xFE)
     {
       move(row-1, 0);
-      printw("Please enter 0, 1, 2, 3, or \'q\'.\n");
+      printw("Please enter 0, 1, 2, 3, or \'q\'. Press any key to continue.");
       refresh();
-      continue;
+      getch();
     }
-    else if(choice == -1)
+    else if(choice == ERROR_UNKNOWN)
     {
       move(row-1, 0);
-      printw("ERROR: PROGRAM FAILED WITH UNKNOWN ERROR.");
+      printw("ERROR: PROGRAM FAILED WITH UNKNOWN ERROR. Press any key to continue.");
       refresh();
-      continue;
+      getch();
+    }
+    else if (choice == ERROR_NOENTRY)
+    {
+      mvprintw(row-1, 0, "ERROR: Failed to enter any data. Press any key to continue.");
+      refresh();
+      getch();
+    }
+    else if (choice == ERROR_BADTYPE)
+    {
+      mvprintw(row-1, 0, "ERROR: BADTYPE exeception. Press any key to continue.");
+      refresh();
+      getch();
     }
   }
 
@@ -87,10 +99,19 @@ int run_menu(char input)
 {
   switch(input)
   {
+    int result;
     case '0':
-      if(run_dbcompile() == -1)
+      if((result = run_dbcompile()) == ERROR_UNKNOWN)
       {
-        return -1;
+        return ERROR_UNKNOWN;
+      }
+      else if (result == ERROR_NOENTRY)
+      {
+        return ERROR_NOENTRY;
+      }
+      else if (result == ERROR_BADTYPE)
+      {
+        return ERROR_BADTYPE;
       }
       break;
     case '1':
