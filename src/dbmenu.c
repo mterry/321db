@@ -47,6 +47,7 @@ int main(int argc, char **argv)
   {
     move(row-1, 0);
     printw("Enter your choice on the keyboard.\n");
+    refresh();
     cinput = getch();
     
     int choice;
@@ -55,6 +56,7 @@ int main(int argc, char **argv)
       clear();
       move(0, 0);
       printw("Exiting. Press any key to continue.\n");
+      refresh();
       getch();
       break;
     }
@@ -62,6 +64,7 @@ int main(int argc, char **argv)
     {
       move(row-1, 0);
       printw("Please enter 0, 1, 2, 3, or \'q\'.\n");
+      refresh();
       continue;
     }
   }
