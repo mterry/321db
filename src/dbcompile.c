@@ -3,9 +3,7 @@
 //  Matthew A. Terry (terrym@uwindsor.ca)
 //  ===========================================================================
 //  include statements
-#include <curses.h>
-#include <form.h>
-#include <stdio.h>
+#include "dbcompile.h"
 
 //  dbcompile menu
 int run_dbcompile()
@@ -17,7 +15,10 @@ int run_dbcompile()
   FORM *dbcompile_form;
 
   int row, col;
-  char ch;
+  int ch;
+
+  char *store_path;
+  char *script_path;
 
   clear();
 
@@ -47,7 +48,7 @@ int run_dbcompile()
   // loop through to get user input
   while((ch = getch()) != KEY_ENTER)
   {
-    switch((unsigned int) ch)
+    switch(ch)
     {
       case KEY_DOWN:
         // go to next field
@@ -66,6 +67,9 @@ int run_dbcompile()
     }
   }
 
+  script_path = get_field_buffer(field[0], col);
+  store_path = get_field_buffer(field[1], col);
+
   // unpost the form and free memory
   unpost_form(dbcompile_form);
   free_form(dbcompile_form);  
@@ -75,6 +79,30 @@ int run_dbcompile()
   return 0;
 }
 
+//  read field buffer and remove leading and trailing spaces; returns the truncated string
+char * get_field_buffer(FIELD *field, int buf_length)
+{
+  char *field_contents, *tmp;
+  int i;
+
+  field_contents = (char *)malloc(sizeof(char));
+
+  tmp = field_buffer(field, buf_length);
+
+  for (i=0; i<buf_length; i++)
+  {
+    if (isspace((*tmp)))
+    {
+      tmp++;
+    }
+    else
+    {
+      (*field_contents) = (*tmp);
+      field_contents++;
+    }
+  }
+  return field_contents;
+}
 //  save the compiled database definition to a file
 //  read in the database file
 //  parse the database file
