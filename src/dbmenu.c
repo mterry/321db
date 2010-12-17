@@ -4,6 +4,7 @@
 //  ---------------------------------------------------------------------------
 #include <curses.h>
 #include "error.h"
+#include "dbcompile.h"
 
 int run_menu(char);
 
@@ -67,6 +68,13 @@ int main(int argc, char **argv)
       refresh();
       continue;
     }
+    else if(choice == -1)
+    {
+      move(row-1, 0);
+      printw("ERROR: PROGRAM FAILED WITH UNKNOWN ERROR.");
+      refresh();
+      continue;
+    }
   }
 
   //  close the curses terminal
@@ -80,6 +88,11 @@ int run_menu(char input)
   switch(input)
   {
     case '0':
+      if(run_dbcompile() == -1)
+      {
+        return -1;
+      }
+      break;
     case '1':
     case '2':
     case '3':

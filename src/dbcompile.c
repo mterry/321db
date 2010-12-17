@@ -67,8 +67,14 @@ int run_dbcompile()
     }
   }
 
-  script_path = get_field_buffer(field[0], col);
-  store_path = get_field_buffer(field[1], col);
+  if((script_path = get_field_buffer(field[0], col)) == NULL)
+  {
+    return -1;
+  }
+  if((store_path = get_field_buffer(field[1], col)) == NULL)
+  {
+    return -1;
+  }
 
   // unpost the form and free memory
   unpost_form(dbcompile_form);
@@ -87,20 +93,21 @@ char * get_field_buffer(FIELD *field, int buf_length)
 
   field_contents = (char *)malloc(sizeof(char));
 
-  tmp = field_buffer(field, buf_length);
+  if ((tmp = field_buffer(field, buf_length)) == NULL)
+  {
+    return NULL;
+  }
 
   for (i=0; i<buf_length; i++)
   {
-    if (isspace((*tmp)))
+    int c;
+    c = *(tmp+i);
+    if (!isspace(c))
     {
-      tmp++;
-    }
-    else
-    {
-      (*field_contents) = (*tmp);
-      field_contents++;
+      strncat(field_contents, (tmp+i), 1);
     }
   }
+  free(tmp);
   return field_contents;
 }
 //  save the compiled database definition to a file
