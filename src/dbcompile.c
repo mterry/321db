@@ -97,8 +97,8 @@ int run_dbcompile()
 
   enum TRIM t = TRIM_BOTH;
 
-  if (((script_path = trim(field_buffer(field[0], 0), isprint, t)) == NULL) \
-    || ((store_path = trim(field_buffer(field[1], 0), isprint, t)) == NULL))
+  if (((script_path = trim(field_buffer(field[0], 0), isgraph, t)) == NULL) \
+    || ((store_path = trim(field_buffer(field[1], 0), isgraph, t)) == NULL))
   {
     return ERROR_BADTYPE;
   }
@@ -130,13 +130,13 @@ char * trim(char *str, int (*istrimmable)(int), enum TRIM t)
     char *p;
 
     // find the first non-trimmable character
-    for (beg = str; *beg != '\0' && istrimmable(*beg); beg++)
+    for (beg = str; *beg != '\0' && !istrimmable(*beg); ++beg)
       ;
 
     // shift the string contents...
     if (beg != str)
     {
-      for (p = str; *beg != '\0'; p++, beg++)
+      for (p = str; *beg != '\0'; ++p, ++beg)
       {
         *p = *beg;
       }
@@ -151,10 +151,10 @@ char * trim(char *str, int (*istrimmable)(int), enum TRIM t)
     // find the last non-trimmable character
     if (end != str)
     {
-      end--;
+      --end;
     }
 
-    for (; end != str && istrimmable(*end); --end)
+    for (; end != str && !istrimmable(*end); --end)
       ;
 
     //Truncate the string...
