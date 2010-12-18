@@ -1,5 +1,5 @@
 //  dbcompile.c
-//  Reads in a database script which generates the final database dictionary
+//  readsRin a database script which generates the final database dictionary
 //  Matthew A. Terry (terrym@uwindsor.ca)
 //  ===========================================================================
 //  include statements
@@ -208,6 +208,14 @@ char * get_field_buffer(FIELD *field)
 int read_db_definition(char *path)
 {
   FILE *loc;
+  
+  if ((loc = fopen(path, "r")) == NULL)
+  {
+    return ERROR_OPEN;
+  }
+  
+
+  fclose(loc);
 }
 //  parse the database file
 //  construct the database table
