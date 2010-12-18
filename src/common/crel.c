@@ -61,9 +61,37 @@ int add_attribute(crel_t table, char *name, char *type, int len)
   return 0;
 }
 //  remove attribute from a table; returns a pointer to the removed attribute
+//  returns NULL if no matching attribute is found in the table
 crel_attr_t rem_attribute(crel_t table, crel_attr_t attribute)
 {
-  return NULL;
+  int i, j;
+
+  for(i=0; i<table->attr_list_len; ++i)
+  {
+    if((memcmp(attribute, table->attr_list[i], sizeof(crel_attr_t))) == 0)
+    {
+      break;
+    }
+  }
+
+  if (i == table->attr_list_len)
+  {
+    return NULL;
+  }
+
+  free(attribute->name);
+  free(attribute->type);
+
+  for (j=i+1; j<table->attr_list_len; ++j, ++i)
+  {
+    table->attr_list[i] = table->attr_list[j];
+  }
+
+  table->attr_list[(table->attr_list_len)-1] == NULL;
+
+  table->attr_list_len--;
+
+  return attribute;
 }
 //  change attribute name; returns 0 if successful, error_code for failure
 int ch_attr_name(crel_attr_t attribute, char *name)
