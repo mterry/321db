@@ -4,9 +4,15 @@ Date created: 10/11/09
 Description:  This is a standard relational database management system complete with a user interface for accessing, modifying, and managing the databases.
 ===============================================================================
 Changelog:
+10/12/16:
+>Wrote the add table and add attribute functions in crel.c
+10/12/15:
+>Project now compiles -- content free ATM, but dbmenu now works. This is beneficial to a more agile/extreme method to software development, as the project can be compiled and run as parts begin to work.
+10/12/10:
+>Added more functions to crel.h
 10/12/09:
 >Removed cmap.c and cmap.h, and instead replaced them with crel.c and crel.h, the source and header files for the relation structure definitions and handling functions. Parsing will be tackled next.
->Updated README. Closes gh-1.
+>Updated README.
 10/12/02:
 >Killed Subversion repository; removed directories added for the purposes of Subversion. Added src/common and include/common for common library functions and data structures. Also began work on a C-based map data structure (include/common/cmap.h and src/common/cmap.c) which is intended to be used for the SQL parsing engine.
 10/11/25:
