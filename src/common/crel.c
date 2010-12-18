@@ -113,3 +113,11 @@ int rem_primary_key(crel_attr_t target)
 {
   return 0;
 }
+int set_foreign_key(crel_attr_t target, crel_t foreign_target)
+{
+  return 0;
+}
+int rem_foreign_key(crel_attr_t target)
+{
+  return 0;
+}

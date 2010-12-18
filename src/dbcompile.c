@@ -11,7 +11,7 @@ int run_dbcompile()
   //  fields for the dbcompile form:
   //    - full location for the database build script
   //    - full location for the database dictionary storage directory
-  FIELD *field[3];
+  FIELD *field[4];
   FORM *dbcompile_form;
 
   int row, col;
@@ -27,16 +27,22 @@ int run_dbcompile()
   //  init fields
   field[0] = new_field(1, col/4, 2, 0, 0, 0);
   field[1] = new_field(1, col/4, 5, 0, 0, 0);
-  field[2] = NULL;
+  field[2] = new_field(1, 6, row-1, 0, 0, 0);
+  field[3] = NULL;
 
   //  set field options
   set_field_back(field[0], A_UNDERLINE);
   set_field_back(field[1], A_UNDERLINE);
+  set_field_back(field[2], A_REVERSE);
+  set_field_fore(field[2], A_REVERSE);
 
   field_opts_off(field[0], O_NULLOK);
   field_opts_off(field[0], O_AUTOSKIP);
-  field_opts_off(field[1], O_NULLOK);
   field_opts_off(field[1], O_AUTOSKIP);
+  field_opts_off(field[2], O_AUTOSKIP);
+  field_opts_off(field[2], O_EDIT);
+
+  set_field_buffer(field[2], 0, "SUBMIT");
 
   // create the form
   dbcompile_form = new_form(field);
@@ -45,7 +51,7 @@ int run_dbcompile()
 
   mvprintw(1, 0, "Enter the full path of the definition script.");
   mvprintw(4, 0, "OPTIONAL: Enter the full path to the database dictionary directory.");
-  mvprintw(6, 0, "Press Enter on the keypad to submit, the down and up arrows to move between fields.");
+  mvprintw(6, 0, "Use, the down and up arrows to move between fields, keypad Enter to select.");
   refresh();
 
   // loop through to get user input
