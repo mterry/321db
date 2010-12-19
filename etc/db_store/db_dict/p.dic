@@ -1,0 +1,7 @@
+P
+/home/mat/prog/cs321/321db/etc/db_store/db_file/p.dat
+PNO CHAR 3
+PNAME CHAR 10
+COLOR CHAR 5
+WEIGHT FLOAT
+CITY CHAR 10

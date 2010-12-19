@@ -1,0 +1,6 @@
+S
+/home/mat/prog/cs321/321db/etc/db_store/db_file/s.dat
+SNO CHAR 3 PRIMARY
+SNAME CHAR 10
+STATUS INT
+CITY CHAR 10

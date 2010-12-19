@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
+#include "crel.h"
 #include "trim.h"
 
 // dbcompile menu
@@ -20,5 +21,11 @@ int run_dbcompile();
 //  -- DEPRECATED == use trim() instead
 char * get_field_buffer(FIELD *);
 //  -- END DEPRECATED
-char * read_db_definition(char *);
+
+//  parse the database definition file; returns an array of relational tables;
+//    returns NULL on failure
+crel_t * parse_db_definition(char *, char *);
+//  saves a constructed table dictionary to file; returns 0 if successful;
+//    returns error_code on failure
+int save_table(crel_t);
 #endif

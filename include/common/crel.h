@@ -50,15 +50,15 @@ typedef struct crel * crel_t;
 
 //  function declarations
 //  creating a new relational table; returns the new table
-crel_t new_reltable();
+crel_t new_reltable(char *, char *);
 //  delete a relational table; returns the delected table with all other
 //  references removed;
-crel_t rem_reltable();
+crel_t rem_reltable(crel_t);
 
 //  add attribute to a table; returns 0 for successful
-int add_attribute(crel_t, char *, char *, int);
+crel_attr_t add_attribute(crel_t, char *, char *, int);
 //  remove attribute from a table; returns the removed attribute if successful,
-//  NULL if failed
+//  NULL for failure
 crel_attr_t rem_attribute(crel_t, crel_attr_t);
 //  change attribute name; returns 0 for successful, error_code for failure
 int ch_attr_name(crel_attr_t, char *);

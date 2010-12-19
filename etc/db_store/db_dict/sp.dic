@@ -1,0 +1,5 @@
+SP
+/home/mat/cs321/321db/etc/db_store/db_file/sp.dat
+SNO CHAR 3
+PNO CHAR 3
+QTY INT

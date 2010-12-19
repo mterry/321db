@@ -121,14 +121,12 @@ int run_dbcompile()
 
   refresh();
   getch();
-
- 
   clear();
 
-  if((file_contents = read_db_definition(script_path)) == NULL)
+  crel_t *table_list;
+
+  if((table_list = parse_db_definition(script_path, store_path)) == NULL)
   {
-    mvprintw(row-2, 0, "Bad file path. Press any key to go back to main menu");
-    getch();
     // unpost the form and free memory
     unpost_form(dbcompile_form);
     free_form(dbcompile_form);  
@@ -137,25 +135,6 @@ int run_dbcompile()
     free_field(field[2]);
  
     return ERROR_BADTYPE;
-  }
-
-  char *fcp = file_contents;
-
-  while(*fcp != '\n')
-  {
-    int y, x;
-    getyx(stdscr, y, x);
-    if (y == (row-1))
-    {
-      printw("Press any key to continue.");
-      getch();
-      clear();
-      move(0, 0);
-    }
-    else
-    {
-      printw("%c", ch);
-    }
   }
 
   refresh();
@@ -200,15 +179,20 @@ char * get_field_buffer(FIELD *field)
   return field_contents;
 }
 //  -- END DEPRECATED
-//  read in the database file
-char * read_db_definition(char *path)
+
+//  reads in and parses the database definition file; returns an array of relational
+//    tables; returns NULL on failure
+crel_t * parse_db_definition(char *path, char *store_path)
 {
   FILE *loc;
-  char *str;
+  crel_t *table_list;
+  int line_number, step, table_count;
 
-  str = (char *) malloc(sizeof(char));
-  
-  char *p = str;
+  enum TRIM t = TRIM_BOTH;
+  line_number = 0;
+  step = 0;
+  table_count = 0;
+  table_list = (crel_t *) calloc(10, sizeof(crel_t));
 
   if ((loc = fopen(path, "r")) == NULL)
   {
@@ -217,11 +201,76 @@ char * read_db_definition(char *path)
 
   while (!feof(loc))
   {
-    *p++ = fgetc(loc);
+    char *current_line, buf[255], **token_list, **ptl;
+
+    token_list = (char **) malloc(sizeof(char*));
+    ptl = token_list;
+
+    fgets(buf, 255, loc);
+    
+    // trim out all spaces, non-printing characters found before and after text
+    current_line = trim(buf, isgraph, t);
+
+    // split the current line into tokens delimited by ", ;"
+    ptl[0] = strtok(current_line, " ,;");
+    int i;
+
+    i = 0;
+    while(ptl[++i] != NULL)
+    {
+      ptl[i] = strtok(NULL, " ,;");
+    }
+
+    // if token == "TABLE", then expect the next token = "name" and the next = '(';
+    //   increase step
+    if(((strcmp(token_list[0], "TABLE")) == 0) && (step == 0))
+    {
+      table_list[table_count] = new_reltable(token_list[1], store_path);
+      ++step;
+    }
+    // else if token == "ATTR" && step != 0, then create a new attribute with
+    //   attr_name=token_list+1...
+    else if(((strcmp(token_list[0], "ATTR")) == 0) && (step != 0))
+    {
+      char *type, *name;
+      int len;
+
+      name = token_list[1];
+      type = strtok(token_list[2], "()");
+      len = (int) atol(strtok(NULL, "()"));
+
+      crel_attr_t new_attr = add_attribute(table_list[table_count], name, type, len);
+
+      /// TODO:
+      if (token_list[3] != NULL)
+      {
+        if ((strcmp(token_list[3], "PRIMARY")) == 0)
+        {
+        }
+      }
+      /// END TODO;
+    }
+    // else if token == ')', then decrease step
+    else if((strcmp(token_list[0], ")")) == 0)
+    {
+      table_count++;
+      table_list++;
+      --step;
+    }
+    else if((strcmp(token_list[0], "(")) == 0)
+    {
+      ++step;
+    }
+    // else return NULL
+    else
+    {
+      free(token_list);
+      free(table_list);
+      return NULL;
+    }
+    free(token_list);
   }
-  *p = '\0';
 
   fclose(loc);
-
-  return str;
+  return table_list;
 }

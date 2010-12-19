@@ -5,6 +5,7 @@
 #include <curses.h>
 #include "error.h"
 #include "dbcompile.h"
+#include "dbfill.h"
 
 int run_menu(char);
 
@@ -83,7 +84,7 @@ int main(int argc, char **argv)
     }
     else if (choice == ERROR_BADTYPE)
     {
-      mvprintw(row-1, 0, "ERROR: BADTYPE exeception. Press any key to continue.");
+      mvprintw(row-1, 0, "ERROR: BADTYPE exeception. Bad memory allocation or bad path detected. Press any key to continue.");
       refresh();
       getch();
     }
@@ -115,6 +116,11 @@ int run_menu(char input)
       }
       break;
     case '1':
+      if((result = run_dbfill()) == ERROR_UNKNOWN)
+      {
+        return ERROR_UNKNOWN;
+      }
+      break;
     case '2':
     case '3':
     case 'q':

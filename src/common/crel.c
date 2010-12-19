@@ -14,13 +14,13 @@ crel_t new_reltable(char *name, char *loc)
   crel_t new_table;
 
   // init vars
-  if((new_table = (crel_t) malloc(sizeof(crel_t))) == NULL)
+  if((new_table = (crel_t) calloc(1, sizeof(struct crel))) == NULL)
   {
     return NULL;
   }
 
   // create the attribute list array
-  new_table->attr_list = (crel_attr_t *) malloc(sizeof(crel_attr_t));
+  new_table->attr_list = (crel_attr_t *) calloc(1, sizeof(crel_attr_t));
   // populate other fields in the structure
   new_table->name = name;
   new_table->loc = loc;
@@ -45,20 +45,21 @@ crel_t rem_reltable(crel_t table_to_remove)
   return table_to_remove;
 }
 
-//  add attribute to a table; returns 0 for successful
-int add_attribute(crel_t table, char *name, char *type, int len)
+//  add attribute to a table; returns a reference to the added attribute for successful;
+//    NULL for failure
+crel_attr_t add_attribute(crel_t table, char *name, char *type, int len)
 {
   crel_attr_t new_attr;
 
-  new_attr = (crel_attr_t) malloc(sizeof(crel_attr_t));
-  new_attr->constraints = (crel_attr_constraints_t) malloc(sizeof(crel_attr_constraints_t));
+  new_attr = (crel_attr_t) calloc(1, sizeof(struct crel_attr));
+  new_attr->constraints = (crel_attr_constraints_t) calloc(1, sizeof(struct crel_attr_constraints));
   new_attr->name = name;
   new_attr->type = type;
   new_attr->len = len;
 
   table->attr_list[(table->attr_list_len)++] = new_attr;
 
-  return 0;
+  return new_attr;
 }
 //  remove attribute from a table; returns a pointer to the removed attribute
 //  returns NULL if no matching attribute is found in the table
@@ -104,6 +105,7 @@ int ch_attr_type(crel_attr_t attribute, char *type)
   return 0;
 }
 
+/// TODO:
 int set_primary_key(crel_attr_t target)
 {
   return 0;
@@ -121,3 +123,4 @@ int rem_foreign_key(crel_attr_t target)
 {
   return 0;
 }
+/// END TODO;
