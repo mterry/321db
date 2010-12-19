@@ -1,5 +1,5 @@
 //  dbcompile.c
-//  readsRin a database script which generates the final database dictionary
+//  reads in a database script which generates the final database dictionary
 //  Matthew A. Terry (terrym@uwindsor.ca)
 //  ===========================================================================
 //  include statements
@@ -19,6 +19,7 @@ int run_dbcompile()
 
   char *store_path;
   char *script_path;
+  char *file_contents;
 
   clear();
 
@@ -27,7 +28,7 @@ int run_dbcompile()
   //  init fields
   field[0] = new_field(1, col/4, 2, 0, 0, 0);
   field[1] = new_field(1, col/4, 5, 0, 0, 0);
-  field[2] = new_field(1, 6, row-1, 0, 0, 0);
+  field[2] = new_field(1, 8, row-1, 0, 0, 0);
   field[3] = NULL;
 
   //  set field options
@@ -38,11 +39,13 @@ int run_dbcompile()
 
   field_opts_off(field[0], O_NULLOK);
   field_opts_off(field[0], O_AUTOSKIP);
+  field_opts_off(field[0], O_STATIC);
   field_opts_off(field[1], O_AUTOSKIP);
+  field_opts_off(field[1], O_STATIC);
   field_opts_off(field[2], O_AUTOSKIP);
   field_opts_off(field[2], O_EDIT);
 
-  set_field_buffer(field[2], 0, "SUBMIT");
+  set_field_buffer(field[2], 0, " SUBMIT ");
 
   // create the form
   dbcompile_form = new_form(field);
@@ -119,67 +122,54 @@ int run_dbcompile()
   refresh();
   getch();
 
+ 
+  clear();
+
+  if((file_contents = read_db_definition(script_path)) == NULL)
+  {
+    mvprintw(row-2, 0, "Bad file path. Press any key to go back to main menu");
+    getch();
+    // unpost the form and free memory
+    unpost_form(dbcompile_form);
+    free_form(dbcompile_form);  
+    free_field(field[0]);
+    free_field(field[1]);
+    free_field(field[2]);
+ 
+    return ERROR_BADTYPE;
+  }
+
+  char *fcp = file_contents;
+
+  while(*fcp != '\n')
+  {
+    int y, x;
+    getyx(stdscr, y, x);
+    if (y == (row-1))
+    {
+      printw("Press any key to continue.");
+      getch();
+      clear();
+      move(0, 0);
+    }
+    else
+    {
+      printw("%c", ch);
+    }
+  }
+
+  refresh();
+  getch();
+  clear();
+
   // unpost the form and free memory
   unpost_form(dbcompile_form);
   free_form(dbcompile_form);  
   free_field(field[0]);
   free_field(field[1]);
-  
-  clear();
-
+  free_field(field[2]);
+ 
   return 0;
-}
-
-//  uses the is***** functions from ctypes.h to trim a string of unwanted characters
-//    returns the truncated string
-char * trim(char *str, int (*istrimmable)(int), enum TRIM t)
-{
-  char *beg;
-
-  if (t == TRIM_LEFT || t == TRIM_BOTH)
-  {
-    char *p;
-
-    // find the first non-trimmable character
-    for (beg = str; *beg != '\0' && !istrimmable(*beg); ++beg)
-      ;
-
-    // shift the string contents...
-    if (beg != str)
-    {
-      for (p = str; *beg != '\0'; ++p, ++beg)
-      {
-        *p = *beg;
-      }
-      *p = *beg;
-    }
-  }
-
-  if (t == TRIM_RIGHT || t == TRIM_BOTH)
-  {
-    char *end = str+strlen(str);
-
-    // find the last non-trimmable character
-    if (end != str)
-    {
-      --end;
-    }
-
-    for (; end != str && !istrimmable(*end); --end)
-      ;
-
-    //Truncate the string...
-    if (end == str && istrimmable(*end))
-    {
-      *end = '\0';
-    }
-    else
-    {
-      end[1] = '\0';
-    }
-  }
-
-  return str;
 }
 
 //  read field buffer and remove leading and trailing spaces;
@@ -209,19 +199,29 @@ char * get_field_buffer(FIELD *field)
   free(tmp);
   return field_contents;
 }
-//  save the compiled database definition to a file
+//  -- END DEPRECATED
 //  read in the database file
-int read_db_definition(char *path)
+char * read_db_definition(char *path)
 {
   FILE *loc;
+  char *str;
+
+  str = (char *) malloc(sizeof(char));
   
+  char *p = str;
+
   if ((loc = fopen(path, "r")) == NULL)
   {
-    return ERROR_OPEN;
+    return NULL;
   }
-  
+
+  while (!feof(loc))
+  {
+    *p++ = fgetc(loc);
+  }
+  *p = '\0';
 
   fclose(loc);
+
+  return str;
 }
-//  parse the database file
-//  construct the database table
