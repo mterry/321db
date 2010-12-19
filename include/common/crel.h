@@ -7,6 +7,7 @@
 //  include statements
 #include <string.h>
 #include <stdlib.h>
+#include "error.h"
 
 //  Implementation notes:
 //    Relations are organized into tables, which have a number of elements:
@@ -21,19 +22,19 @@
 //  attribute constraints structure definition:
 struct crel_attr_constraints
 {
-  unsigned int primary_key  : 1;
+  unsigned char primary_key : 1;
+  unsigned char foreign_key : 1;
+  struct crel * foreign_key_p;
 };
 typedef struct crel_attr_constraints * crel_attr_constraints_t;
 
-//  attribute list structure definition:
+//  attribute structure definition:
 struct crel_attr
 {
-  int index;
   char *name;
   char *type;
-  int length;
-  crel_attr_constraints_t constraint_list;
-  struct crel_attr *next_attribute;
+  int len;
+  crel_attr_constraints_t constraints;
 };
 typedef struct crel_attr * crel_attr_t;
 
@@ -41,34 +42,35 @@ typedef struct crel_attr * crel_attr_t;
 struct crel
 {
   char *name;
-  char *file_loc;
-  int next_index;
-  crel_attr_t attr_list;
+  char *loc;
+  int attr_list_len;
+  crel_attr_t *attr_list;
 };
 typedef struct crel * crel_t;
 
 //  function declarations
 //  creating a new relational table; returns the new table
-crel_t new_reltable();
-//  delete a relational table; returns the deleted table with all other
-//  references removed
-crel_t rem_reltable();
+crel_t new_reltable(char *, char *);
+//  delete a relational table; returns the delected table with all other
+//  references removed;
+crel_t rem_reltable(crel_t);
 
 //  add attribute to a table; returns 0 for successful
-int add_attribute(crel_t, char *, char *);
-//  remove attribute from a table by pointer; returns a pointer to the removed attribute
-crel_attr_t rem_attribute_by_pointer(crel_t, crel_attr_t);
-//  remove attribute from a table by name; returns a pointer to the removed attribute
-crel_attr_t rem_attribute_by_name(crel_t, char *);
-//  change attribute name; returns a pointer to the changed attribute
-crel_attr_t ch_attribute(crel_t, char *, char *);
-//  find an attribute by name in a table
-crel_attr_t find_attribute_by_name(crel_t, char *);
-//  find an attribute by index number in a table
-crel_attr_t find_attribute_by_index(crel_t, int);
+crel_attr_t add_attribute(crel_t, char *, char *, int);
+//  remove attribute from a table; returns the removed attribute if successful,
+//  NULL for failure
+crel_attr_t rem_attribute(crel_t, crel_attr_t);
+//  change attribute name; returns 0 for successful, error_code for failure
+int ch_attr_name(crel_attr_t, char *);
+//  change attribute type; returns 0 for successful, error_code for failure
+int ch_attr_type(crel_attr_t, char *);
 
 //  set an attribute to be a primary key; returns 0 for successful
 int set_primary_key(crel_attr_t);
 //  remove the primary key status for an attribute; returns 0 for successful
 int rem_primary_key(crel_attr_t);
+//  set an attribute to be a foreign key; returns 0 for successful
+int set_foreign_key(crel_attr_t, crel_t);
+//  remove the foreign key status for an attribute; returns 0 for successful
+int rem_foreign_key(crel_attr_t);
 #endif

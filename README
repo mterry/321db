@@ -1,13 +1,49 @@
-Project Name: 321db
+Project Name: 321-database
 Author:       Matthew A. Terry (terrym@uwindsor.ca)
 Date created: 10/11/09
-Description:  This is a standard relational database management system complete with a user interface for accessing, modifying, and managing the databases.
+===============================================================================
+Description:  This is a standard relational database management system complete with a menu-driven user interface for accessing, modifying, and managing the database.
+Features:     - Takes dbscript files and compiles them into a database dictionary
+                - supports primary key and foreign key constraints
+              - Allows for users to use the compiled database by:
+                - filling in new relations
+                - querying the dataset
+                - updating and removing relations
+===============================================================================
+How to install:
+  - Install on a Unix or Unix-like system (this can include Cygwin)
+  - Download the version tar-ball from http://github.com/mterry/321db
+    - Alternatively download the most recent build using git
+  - untar the tar-ball to whichever directory you want
+  - Change your working directory to the untarred project
+  - Run make using the makefile included with the project
+    - Target all will build the entire project
+  - Run make install to move the project binaries to the system
+    - You will need to be root to do this
+===============================================================================
+FAQ:
+  Q:  Why is the <insert module here> menu not reading in the location I specified?
+    A:  You have to navigate down to the "submit" button on the form and press Enter on the keypad to correctly guarantee all inputted content is submitted.
+  Q:  I don't have a keypad: how do I submit anything?
+    A:  You're welcome to change the source for the project -- in each module, there's a loop in run_<insert module name> which handles all user input.
+        Change the key neccessary for the break condition.
+  Q:  Can you implement <insert feature here>?
+    A:  You want it implemented, either submit an issue on the github (http://github.com/mterry/321db) or fork the repository and implement it yourself; if I like it,
+        I may decide to accept your commits or implement your idea; however, all submitted ideas will get appropriated and you will not be guaranteed any credit, so don't expect
+        any. If you submit code, all credit for the code is yours.
+  Q:  Can you fix <insert bug here>?
+    A:  Submit a detailed bug report on the github: include the version number, the module, and how to reproduce the bug or error. I will attempt to get back to you as quickly
+        as I can. Alternatively, you can always fork the repo, fix the bug yourself, and submit the commits upstream for review.
+  Q:  Why is it written in C? Can you port it to other languages?
+    A:  No, I won't port it to other languages. If you want to, you're welcome to. Just keep your port in a copyleft license and we'll be kosher. As far as why it's written in
+        C, well, it's because the school project detailed that we had to do it in C. If I had my way, it would have been C++.
+  Q:  
 ===============================================================================
 Changelog:
 10/12/16:
 >Wrote the add table and add attribute functions in crel.c
 10/12/15:
->Project now compiles -- content free ATM, but dbmenu now works. This is beneficial to a more agile/extreme method to software development, as the project can be compiled and run as parts begin to work.
+>Project now compiles -- content free ATM, but dbmenu now works. This is beneficial to a more agile/extreme method approach to software development, as the project can be compiled and run as parts begin to work.
 10/12/10:
 >Added more functions to crel.h
 10/12/09:

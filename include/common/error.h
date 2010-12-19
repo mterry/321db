@@ -5,8 +5,12 @@
 
 enum error_code
 {
+  ERROR_UNKNOWN = -1,
   ERROR_OK = 0,
-  ERROR_BADTYPE
+  ERROR_BADTYPE,
+  ERROR_NOENTRY,
+  ERROR_OPEN,
+  ERROR_BADTOKEN
 };
 
 #endif
