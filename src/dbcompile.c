@@ -203,6 +203,7 @@ crel_table_p * read_db_definition(const char *path, const char *store_path)
     fclose(loc);
     return NULL;
   }
+
   t = TRIM_RIGHT;
 
   if((loc = fopen(path, "r")) == NULL)
