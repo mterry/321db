@@ -89,11 +89,13 @@ Changelog:
   trim() out of dbcompile and into its own module (src/common/trim.c and
   include/common/trim.h).
 10/12/18:
->
->
->
->
->
+> Added the submit button to the dbcompile menu and updated some functions in
+  crel.c.
+> Updated readme with all current changes for the master branch.
+> Updated readme with all current changes for the master branch.
+> Implemented adding and removing of tables and attributes.
+> Modified crel.c and crel.h for the new method of storing and accessing
+  attributes and tables. Also added foreign key support.
 10/12/17:
 > Updated run_dbcompile(). Now explicitly specifies that the second field is
   optional. This assists with issue 18 on the github.
