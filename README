@@ -2,7 +2,9 @@ Project Name: 321-database
 Author:       Matthew A. Terry (terrym@uwindsor.ca)
 Date created: 10/11/09
 ===============================================================================
-Description:  This is a standard relational database management system complete with a menu-driven user interface for accessing, modifying, and managing the database.
+Description:  This is a standard relational database management system complete
+              with a menu-driven user interface for accessing, modifying, and
+              managing the database.
 Features:     - Takes dbscript files and compiles them into a database dictionary
                 - supports primary key and foreign key constraints
               - Allows for users to use the compiled database by:
@@ -22,36 +24,104 @@ How to install:
     - You will need to be root to do this
 ===============================================================================
 FAQ:
-  Q:  Why is the <insert module here> menu not reading in the location I specified?
-    A:  You have to navigate down to the "submit" button on the form and press Enter on the keypad to correctly guarantee all inputted content is submitted.
+  Q:  Why is the <insert module here> menu not reading in the location I
+      specified?
+    A:  You have to navigate down to the "submit" button on the form and press
+        Enter on the keypad to correctly guarantee all inputted content is
+        submitted.
   Q:  I don't have a keypad: how do I submit anything?
-    A:  You're welcome to change the source for the project -- in each module, there's a loop in run_<insert module name> which handles all user input.
+    A:  You're welcome to change the source for the project -- in each module,
+        there's a loop in run_<insert module name> which handles all user input.
         Change the key neccessary for the break condition.
   Q:  Can you implement <insert feature here>?
-    A:  You want it implemented, either submit an issue on the github (http://github.com/mterry/321db) or fork the repository and implement it yourself; if I like it,
-        I may decide to accept your commits or implement your idea; however, all submitted ideas will get appropriated and you will not be guaranteed any credit, so don't expect
-        any. If you submit code, all credit for the code is yours.
+    A:  You want it implemented, either submit an issue on the github
+        (http://github.com/mterry/321db) or fork the repository and implement
+        it yourself; if I like it, I may decide to accept your commits or
+        implement your idea; however, all submitted ideas will get appropriated
+        and you will not be guaranteed any credit, so don't expect any. If you
+        submit code, all credit for the code is yours.
   Q:  Can you fix <insert bug here>?
-    A:  Submit a detailed bug report on the github: include the version number, the module, and how to reproduce the bug or error. I will attempt to get back to you as quickly
-        as I can. Alternatively, you can always fork the repo, fix the bug yourself, and submit the commits upstream for review.
+    A:  Submit a detailed bug report on the github: include the version number,
+        the module, and how to reproduce the bug or error. I will attempt to get
+        back to you as quickly as I can. Alternatively, you can always fork the
+        repo, fix the bug yourself, and submit the commits upstream for review.
   Q:  Why is it written in C? Can you port it to other languages?
-    A:  No, I won't port it to other languages. If you want to, you're welcome to. Just keep your port in a copyleft license and we'll be kosher. As far as why it's written in
-        C, well, it's because the school project detailed that we had to do it in C. If I had my way, it would have been C++.
+    A:  No, I won't port it to other languages. If you want to, you're welcome
+        to. Just keep your port in a copyleft license and we'll be kosher. As
+        far as why it's written in C, well, it's because the school project
+        detailed that we had to do it in C. If I had my way, it would have been C++.
+  Q:  Why does your program crash when I attempt to compile an SQL file
+    A:  There is a documented bug in the dbcompile module regarding a memory
+        corruption error while compiling the database. See issue 23 on the
+        github for more details. If anyone wishes to correct this issue,
+        or has any information on why it is occuring, please feel free to
+        comment on the issue or submit a commit which will correct the bug.
   Q:  
 ===============================================================================
 Changelog:
+10/12/19:
+> Took another look at dbcompile; I have yet still to find an answer.
+> BROKEN: dbcompile is left broken due to an unsolvable (by me) memory corruption
+  bug; it compiles and runs, but realloc() throws a segfault when attempting to
+  expand the number of attributes in a table, due to attribute count being
+  trashed by the bug. Reference: issue 23 on github.
+> Completed rewrite of crel.c and crel.h, and rewrote dbcompile.c. All memory
+  leaks from dbcompile have been eliminated, as well as that nasty malloc issue;
+  spaghetti code has been reduced to nil, and only well structured code remains.
+  The final piece of dbcompile is next: writing the actual dictionary files out.
+> Merge branch 'dbfill'
+> Deprecated the old crel.h and crel.c, and moved them to old_crel.h and old_crel.c,
+  respectively. Rewrote crel.h and crel.c from scratch, in a more efficient and
+  easier to debug method.
+> Merge branch 'dbcompile'
+> Manually created the .dic files in etc/db_store in order to implement dbfill.
+  Also modified create_sp.sql to be properly read in by dbcompile, modified a
+  host of other files while developing dbcompile, which has been halted (due
+  to being broken: see issue 20 and 22 on github), and created run_dbfill() in
+  dbfill.c and created include/db_fill.h. Also added hooks to db_menu to run
+  the db_fill menu. 
+> Updated README with FAQs, install instructions, and some other content. Moved
+  trim() out of dbcompile and into its own module (src/common/trim.c and
+  include/common/trim.h).
+10/12/18:
+>
+>
+>
+>
+>
+10/12/17:
+> Updated run_dbcompile(). Now explicitly specifies that the second field is
+  optional. This assists with issue 18 on the github.
+> Fixed trim(). istrimmable specifies the characters that you want to save now.
+> Fixed the null pointer bug, the freeing field bug, and the main menu rendering
+  issue.
+> Updated dbcompile.h, dbcompile.c, dbmenu.c; attempting to track down a null
+  pointer bug.
 10/12/16:
->Wrote the add table and add attribute functions in crel.c
+> Now reading in content from dbcompile forms and truncating strings to remove
+  whitespace.
+> New menu for dbcompile implemented roughly.
+> Wrote the add table and add attribute functions in crel.c
 10/12/15:
->Project now compiles -- content free ATM, but dbmenu now works. This is beneficial to a more agile/extreme method approach to software development, as the project can be compiled and run as parts begin to work.
+> Project now compiles -- content free ATM, but dbmenu now works. This is
+  beneficial to a more agile/extreme method approach to software development, as
+  the project can be compiled and run as parts begin to work.
 10/12/10:
->Added more functions to crel.h
+> Added more functions to crel.h
 10/12/09:
->Removed cmap.c and cmap.h, and instead replaced them with crel.c and crel.h, the source and header files for the relation structure definitions and handling functions. Parsing will be tackled next.
->Updated README.
+> Removed cmap.c and cmap.h, and instead replaced them with crel.c and crel.h,
+  the source and header files for the relation structure definitions and handling
+  functions. Parsing will be tackled next.
+> Updated README.
 10/12/02:
->Killed Subversion repository; removed directories added for the purposes of Subversion. Added src/common and include/common for common library functions and data structures. Also began work on a C-based map data structure (include/common/cmap.h and src/common/cmap.c) which is intended to be used for the SQL parsing engine.
+> Killed Subversion repository; removed directories added for the purposes of
+  Subversion. Added src/common and include/common for common library functions
+  and data structures. Also began work on a C-based map data structure
+  (include/common/cmap.h and src/common/cmap.c) which is intended to be used
+  for the SQL parsing engine.
 10/11/25:
->Constructed Subversion repository; added directories trunk, tags, and branches; edited README
+> Constructed Subversion repository; added directories trunk, tags, and
+  branches; edited README
 10/11/09:
->First commit: added the readme (this file) as well as constructed the directory structure.
+> First commit: added the readme (this file) as well as constructed the
+  directory structure.
