@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <float.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 //  data types for attributes
 struct crel_attr
@@ -67,4 +68,10 @@ int rem_attr(crel_table_p, int);
 int insert_rel(crel_table_p, crel_relation_p);
 //  remove relation from table
 int rem_rel(crel_table_p, int);
+
+//  to string functions
+//  table to string
+char * crel_table_to_string(crel_table_p);
+//  attribute to string
+char * crel_attr_to_string(crel_attr_p);
 #endif

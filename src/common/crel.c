@@ -115,7 +115,7 @@ crel_attr_p new_attribute(char *attribute_content)
     strcpy(new_attribute.type, pch);
     new_attribute.length = 0;
   }
-  else if((strmp(pch, "FLOAT")) == 0)
+  else if((strcmp(pch, "FLOAT")) == 0)
   {
     strcpy(new_attribute.type, pch);
     new_attribute.length = 0;
@@ -217,4 +217,30 @@ int rem_rel(crel_table_p target, int relation_no)
   }
   
   return 0;
+}
+
+//  to string functions
+//  table to string
+char * crel_table_to_string(crel_table_p table)
+{
+  char *to_string;
+  strcat(to_string, table->name);
+  strcat(to_string, "\n");
+  strcat(to_string, table->loc);
+  strcat(to_string, "\n");
+
+  return to_string;
+}
+//  attribute to string
+char * crel_attr_to_string(crel_attr_p attribute)
+{
+  char *to_string, *int_to_string;
+  strcat(to_string, attribute->name);
+  strcat(to_string, " ");
+  strcat(to_string, attribute->type);
+  strcat(to_string, " ");
+  sprintf(int_to_string, "%d", attribute->length);
+  strcat(to_string, int_to_string);
+
+  return to_string;
 }

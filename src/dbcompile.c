@@ -114,28 +114,10 @@ int run_dbcompile()
 
   if ((field_status(field[1])) == FALSE)
   {
-    store_path = "../etc/db_store/";
+    store_path = "home/mat/prog/cs321/321db/etc/db_store/";
   }
 
   mvprintw(row-1, 0, "script_path=\"%s\" and store_path=\"%s\" Press any key to continue.", script_path, store_path);
-
-  refresh();
-  getch();
-  clear();
-
-  crel_t *table_list;
-
-  if((table_list = parse_db_definition(script_path, store_path)) == NULL)
-  {
-    // unpost the form and free memory
-    unpost_form(dbcompile_form);
-    free_form(dbcompile_form);  
-    free_field(field[0]);
-    free_field(field[1]);
-    free_field(field[2]);
- 
-    return ERROR_BADTYPE;
-  }
 
   refresh();
   getch();
@@ -180,97 +162,181 @@ char * get_field_buffer(FIELD *field)
 }
 //  -- END DEPRECATED
 
+/// -- TODO --
 //  reads in and parses the database definition file; returns an array of relational
 //    tables; returns NULL on failure
-crel_t * parse_db_definition(char *path, char *store_path)
+crel_table_p * read_db_definition(char *path, char *store_path)
 {
+  //  variable declarations
   FILE *loc;
-  crel_t *table_list;
-  int line_number, step, table_count;
+  crel_table_p *database;
+  int table_count, line_length, step;
+  enum TRIM t;
 
-  enum TRIM t = TRIM_BOTH;
-  line_number = 0;
-  step = 0;
-  table_count = 0;
-  table_list = (crel_t *) calloc(10, sizeof(crel_t));
-
-  if ((loc = fopen(path, "r")) == NULL)
+  //  variable initialization
+  table_count = 1;
+  line_length = 10;
+  if((database = (crel_table_p *) calloc(table_count, sizeof(crel_table_p))) == NULL)
   {
+    fclose(loc);
+    return NULL;
+  }
+  t = TRIM_RIGHT;
+
+  if((loc = fopen(path, "r")) == NULL)
+  {
+    free(database);
     return NULL;
   }
 
-  while (!feof(loc))
+  while(!feof(loc))
   {
-    char *current_line, buf[255], **token_list, **ptl;
+    //  variable declarations for block
+    char **token_list, buf[255], *str;
+    int i, j;
 
-    token_list = (char **) malloc(sizeof(char*));
-    ptl = token_list;
-
-    fgets(buf, 255, loc);
-    
-    // trim out all spaces, non-printing characters found before and after text
-    current_line = trim(buf, isgraph, t);
-
-    // split the current line into tokens delimited by ", ;"
-    ptl[0] = strtok(current_line, " ,;");
-    int i;
-
+    //  variable init
     i = 0;
-    while(ptl[++i] != NULL)
+    str = trim(fgets(buf, 255, loc), isgraph, t);
+    if((token_list = (char **) calloc(line_length, sizeof(char *))) == NULL)
     {
-      ptl[i] = strtok(NULL, " ,;");
-    }
-
-    // if token == "TABLE", then expect the next token = "name" and the next = '(';
-    //   increase step
-    if(((strcmp(token_list[0], "TABLE")) == 0) && (step == 0))
-    {
-      table_list[table_count] = new_reltable(token_list[1], store_path);
-      ++step;
-    }
-    // else if token == "ATTR" && step != 0, then create a new attribute with
-    //   attr_name=token_list+1...
-    else if(((strcmp(token_list[0], "ATTR")) == 0) && (step != 0))
-    {
-      char *type, *name;
-      int len;
-
-      name = token_list[1];
-      type = strtok(token_list[2], "()");
-      len = (int) atol(strtok(NULL, "()"));
-
-      crel_attr_t new_attr = add_attribute(table_list[table_count], name, type, len);
-
-      /// TODO:
-      if (token_list[3] != NULL)
-      {
-        if ((strcmp(token_list[3], "PRIMARY")) == 0)
-        {
-        }
-      }
-      /// END TODO;
-    }
-    // else if token == ')', then decrease step
-    else if((strcmp(token_list[0], ")")) == 0)
-    {
-      table_count++;
-      table_list++;
-      --step;
-    }
-    else if((strcmp(token_list[0], "(")) == 0)
-    {
-      ++step;
-    }
-    // else return NULL
-    else
-    {
-      free(token_list);
-      free(table_list);
+      free(database);
+      free(buf);
+      free(str);
+      fclose(loc);
       return NULL;
     }
-    free(token_list);
+    
+    token_list[i] = strtok(str, " ,;");
+    for(; (token_list[i]) != NULL; ++i)
+    {
+      if((i+1) == line_length)
+      {
+        line_length += 10;
+        token_list = (char **) realloc(token_list, line_length*sizeof(char *));
+      }
+      token_list[i+1] = strtok(NULL, " ,;");
+    }
+
+    // parse token list
+    for(j=0; j < i; ++j)
+    {
+      if(((strcmp(token_list[j], "TABLE")) == 0) && (step == 0))
+      {
+        char *name, *full_store_path;
+        
+        strcpy(name, token_list[j+1]);
+        strcpy(full_store_path, store_path);
+        strcat(full_store_path, "db_data");
+        strcat(full_store_path, name);
+        strcat(full_store_path, ".dat");
+
+        database[table_count-1] = new_table(name, full_store_path);
+
+        if((strcmp(token_list[j+2], "(")) == 0)
+        {
+          ++step;
+        }
+
+        free(name);
+        free(full_store_path);
+      }
+      else if(((strcmp(token_list[j], "ATTR")) == 0) && (step != 0))
+      {
+        char *name, *type, *len, *pch, *attr_defn;
+
+        strcpy(name, token_list[j+1]);
+        pch = strtok(token_list[j+2], "()");
+        if ((strcmp(pch, "VARCHAR2")) == 0)
+        {
+          strcpy(type, "CHAR");
+          pch = strtok(NULL, "()");
+          strcpy(len, pch);
+          strcat(attr_defn, name);
+          strcat(attr_defn, type);
+          strcat(attr_defn, len);
+        }
+        else if((strcmp(pch, "NUMBER")) == 0)
+        {
+          strcpy(type, "INT");
+          strcat(attr_defn, name);
+          strcat(attr_defn, type);
+        }
+        else if((strcmp(pch, "DECIMAL")) == 0)
+        {
+          strcpy(type, "FLOAT");
+          strcat(attr_defn, name);
+          strcat(attr_defn, type);
+        }
+        else
+        {
+          free(name);
+          int k;
+          for(k=0; k < i; ++k)
+          {
+            free(token_list[k]);
+          }
+          free(token_list);
+          free(pch);
+          free(str);
+          free(buf);
+          for(k=0; k < table_count; ++k)
+          {
+            free(database[k]);
+          }
+          free(database);
+          fclose(loc);
+          return NULL;
+        }
+        crel_attr_p attribute = new_attribute(attr_defn);
+
+        insert_attr(database[table_count-1], attribute);
+
+        free(name);
+        free(type);
+        free(len);
+        free(pch);
+        free(attr_defn);
+      }
+      else if(((strcmp(token_list[j], "(")) == 0) && step == 0)
+      {
+        ++step;
+      }
+      else if(((strcmp(token_list[j], ")")) == 0) && step != 0)
+      {
+        ++table_count;
+        --step;
+      }
+      else
+      {
+        int k;
+        for(k=0; k < i; ++k)
+        {
+          free(token_list[k]);
+        }
+        free(token_list);
+        free(str);
+        free(buf);
+        for(k=0; k < table_count; ++k)
+        {
+          free(database[k]);
+        }
+        free(database);
+        fclose(loc);
+        return NULL;
+      }
+      int k;
+      for(k=0; k < i; ++k)
+      {
+        free(token_list[k]);
+      }
+      free(token_list);
+      free(str);
+      free(buf);
+    }
   }
 
   fclose(loc);
-  return table_list;
+  return database;
 }
+/// -- END TODO --
