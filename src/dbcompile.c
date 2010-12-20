@@ -123,13 +123,33 @@ int run_dbcompile()
   getch();
   clear();
 
+  // create the new database from the given script path
+  // vars declaration
+  crel_table_p *database;
+
+  if((database = read_db_definition(script_path, store_path)) == NULL)
+  {
+    unpost_form(dbcompile_form);
+    free_form(dbcompile_form);
+    free_field(field[0]);
+    free_field(field[1]);
+    free_field(field[2]);
+
+    return ERROR_BADALLOC;
+  }
+
+  getch();
+  clear();
+ 
+  free(database);
+
   // unpost the form and free memory
   unpost_form(dbcompile_form);
   free_form(dbcompile_form);  
   free_field(field[0]);
   free_field(field[1]);
   free_field(field[2]);
- 
+
   return 0;
 }
 
@@ -165,17 +185,19 @@ char * get_field_buffer(FIELD *field)
 /// -- TODO --
 //  reads in and parses the database definition file; returns an array of relational
 //    tables; returns NULL on failure
-crel_table_p * read_db_definition(char *path, char *store_path)
+crel_table_p * read_db_definition(const char *path, const char *store_path)
 {
   //  variable declarations
   FILE *loc;
   crel_table_p *database;
   int table_count, line_length, step;
   enum TRIM t;
+  char *full_store_path;
 
   //  variable initialization
   table_count = 1;
   line_length = 10;
+  step = 0;
   if((database = (crel_table_p *) calloc(table_count, sizeof(crel_table_p))) == NULL)
   {
     fclose(loc);
@@ -201,8 +223,6 @@ crel_table_p * read_db_definition(char *path, char *store_path)
     if((token_list = (char **) calloc(line_length, sizeof(char *))) == NULL)
     {
       free(database);
-      free(buf);
-      free(str);
       fclose(loc);
       return NULL;
     }
@@ -219,120 +239,80 @@ crel_table_p * read_db_definition(char *path, char *store_path)
     }
 
     // parse token list
-    for(j=0; j < i; ++j)
+    if(((strcmp(token_list[0], "TABLE")) == 0) && (step == 0))
     {
-      if(((strcmp(token_list[j], "TABLE")) == 0) && (step == 0))
-      {
-        char *name, *full_store_path;
-        
-        strcpy(name, token_list[j+1]);
-        strcpy(full_store_path, store_path);
-        strcat(full_store_path, "db_data");
-        strcat(full_store_path, name);
-        strcat(full_store_path, ".dat");
+      full_store_path = (char *) calloc(256, sizeof(char));
 
-        database[table_count-1] = new_table(name, full_store_path);
+      strcpy(full_store_path, store_path);
+      strcat(full_store_path, "db_data");
+      strcat(full_store_path, token_list[1]);
+      strcat(full_store_path, ".dat");
 
-        if((strcmp(token_list[j+2], "(")) == 0)
-        {
-          ++step;
-        }
+      database[table_count-1] = new_table(token_list[1], full_store_path);
 
-        free(name);
-        free(full_store_path);
-      }
-      else if(((strcmp(token_list[j], "ATTR")) == 0) && (step != 0))
-      {
-        char *name, *type, *len, *pch, *attr_defn;
-
-        strcpy(name, token_list[j+1]);
-        pch = strtok(token_list[j+2], "()");
-        if ((strcmp(pch, "VARCHAR2")) == 0)
-        {
-          strcpy(type, "CHAR");
-          pch = strtok(NULL, "()");
-          strcpy(len, pch);
-          strcat(attr_defn, name);
-          strcat(attr_defn, type);
-          strcat(attr_defn, len);
-        }
-        else if((strcmp(pch, "NUMBER")) == 0)
-        {
-          strcpy(type, "INT");
-          strcat(attr_defn, name);
-          strcat(attr_defn, type);
-        }
-        else if((strcmp(pch, "DECIMAL")) == 0)
-        {
-          strcpy(type, "FLOAT");
-          strcat(attr_defn, name);
-          strcat(attr_defn, type);
-        }
-        else
-        {
-          free(name);
-          int k;
-          for(k=0; k < i; ++k)
-          {
-            free(token_list[k]);
-          }
-          free(token_list);
-          free(pch);
-          free(str);
-          free(buf);
-          for(k=0; k < table_count; ++k)
-          {
-            free(database[k]);
-          }
-          free(database);
-          fclose(loc);
-          return NULL;
-        }
-        crel_attr_p attribute = new_attribute(attr_defn);
-
-        insert_attr(database[table_count-1], attribute);
-
-        free(name);
-        free(type);
-        free(len);
-        free(pch);
-        free(attr_defn);
-      }
-      else if(((strcmp(token_list[j], "(")) == 0) && step == 0)
+      if((strcmp(token_list[2], "(")) == 0)
       {
         ++step;
       }
-      else if(((strcmp(token_list[j], ")")) == 0) && step != 0)
+    }
+    else if(((strcmp(token_list[0], "ATTR")) == 0) && (step != 0))
+    {
+      char *name, *type, *len, *pch, *attr_defn;
+
+      name = (char *) calloc(240, sizeof(char));
+      type = (char *) calloc(8, sizeof(char));
+      len = (char *) calloc(8, sizeof(char));
+      attr_defn = (char *) calloc(256, sizeof(char));
+
+      strcpy(name, token_list[1]);
+      pch = strtok(token_list[2], "()");
+      if ((strcmp(pch, "VARCHAR2")) == 0)
       {
-        ++table_count;
-        --step;
+        strcpy(type, "CHAR");
+        pch = strtok(NULL, "()");
+        strcpy(len, pch);
+        strcat(attr_defn, name);
+        strcat(attr_defn, " ");
+        strcat(attr_defn, type);
+        strcat(attr_defn, " ");
+        strcat(attr_defn, len);
+      }
+      else if((strcmp(pch, "NUMBER")) == 0)
+      {
+        strcpy(type, "INT");
+        strcat(attr_defn, name);
+        strcat(attr_defn, " ");
+        strcat(attr_defn, type);
+      }
+      else if((strcmp(pch, "DECIMAL")) == 0)
+      {
+        strcpy(type, "FLOAT");
+        strcat(attr_defn, name);
+        strcat(attr_defn, " ");
+        strcat(attr_defn, type);
       }
       else
       {
-        int k;
-        for(k=0; k < i; ++k)
-        {
-          free(token_list[k]);
-        }
-        free(token_list);
-        free(str);
-        free(buf);
-        for(k=0; k < table_count; ++k)
-        {
-          free(database[k]);
-        }
-        free(database);
         fclose(loc);
         return NULL;
       }
-      int k;
-      for(k=0; k < i; ++k)
-      {
-        free(token_list[k]);
-      }
-      free(token_list);
-      free(str);
-      free(buf);
+      crel_attr_p attribute = new_attribute(attr_defn);
+
+      insert_attr(database[table_count-1], attribute);
+    }
+    else if(((strcmp(token_list[0], "(")) == 0) && step == 0)
+    {
+      ++step;
+    }
+    else if(((strcmp(token_list[0], ")")) == 0) && step != 0)
+    {
+      ++table_count;
+      --step;
+    }
+    else
+    {
+      fclose(loc);
+      return NULL;
     }
   }
 

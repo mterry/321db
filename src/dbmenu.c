@@ -88,6 +88,12 @@ int main(int argc, char **argv)
       refresh();
       getch();
     }
+    else if (choice == ERROR_BADALLOC)
+    {
+      mvprintw(row-1, 0, "ERROR: BADALLOC exception. Bad memory allocation detected. Press any key to continue.");
+      refresh();
+      getch();
+    }
   }
 
   //  close the curses terminal
@@ -113,6 +119,10 @@ int run_menu(char input)
       else if (result == ERROR_BADTYPE)
       {
         return ERROR_BADTYPE;
+      }
+      else if (result == ERROR_BADALLOC)
+      {
+        return ERROR_BADALLOC;
       }
       break;
     case '1':

@@ -24,7 +24,7 @@ typedef crel_attr_t * crel_attr_p;
 //  data types for relations
 union crel_data
 {
-  char c_content[255];
+  char c_content[256];
   int i_content;
   double f_content;
 };

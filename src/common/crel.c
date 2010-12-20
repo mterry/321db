@@ -29,7 +29,6 @@ crel_relation_p new_relation(crel_attr_p *attribute_list, char *relation_content
     {
       if(strlen(pch) > attribute_list[i]->length)
       {
-        free(pch);
         return NULL;
       }
       strcpy(new_relation.fields[i].c_content, pch);
@@ -39,7 +38,6 @@ crel_relation_p new_relation(crel_attr_p *attribute_list, char *relation_content
       int pch_convert;
       if(((pch_convert = atol(pch)) > INT_MAX) || (pch_convert < INT_MIN))
       {
-        free(pch);
         return NULL;
       }
       new_relation.fields[i].i_content = pch_convert;
@@ -49,14 +47,12 @@ crel_relation_p new_relation(crel_attr_p *attribute_list, char *relation_content
       double pch_convert;
       if(((pch_convert = atof(pch)) > DBL_MAX) || (pch_convert < DBL_MIN))
       {
-        free(pch);
         return NULL;
       }
       new_relation.fields[i].f_content = pch_convert;
     }
     else
     {
-      free(pch);
       return NULL;
     }
     pch = strtok(NULL, " ");
@@ -70,7 +66,6 @@ crel_relation_p new_relation(crel_attr_p *attribute_list, char *relation_content
   }
   crel_relation_p new_relation_p = &new_relation;
 
-  free(pch);
   return new_relation_p;
 }
 //  new table; returns the created table
@@ -80,6 +75,8 @@ crel_table_p new_table(char *name, char *loc)
   crel_table_t new_table;
   
   //  variable init
+  new_table.name = (char *) calloc(strlen(name), sizeof(char));
+  new_table.loc = (char *) calloc(strlen(loc), sizeof(char));
   strcpy(new_table.name, name);
   strcpy(new_table.loc, loc);
   new_table.relation_count = 1;
@@ -101,34 +98,36 @@ crel_attr_p new_attribute(char *attribute_content)
 
   //  variable init
   pch = strtok(attribute_content, " ");
+  new_attribute.name = (char *) calloc(strlen(pch), sizeof(char));
   strcpy(new_attribute.name, pch);
 
   pch = strtok(NULL, " ");
   if((strcmp(pch, "CHAR")) == 0)
   {
+    new_attribute.type = (char *) calloc(strlen(pch), sizeof(char));
     strcpy(new_attribute.type, pch);
     pch = strtok(NULL, " ");
     new_attribute.length = (int) atol(pch);
   }
   else if((strcmp(pch, "INT")) == 0)
   {
+    new_attribute.type = (char *) calloc(strlen(pch), sizeof(char));
     strcpy(new_attribute.type, pch);
     new_attribute.length = 0;
   }
   else if((strcmp(pch, "FLOAT")) == 0)
   {
+    new_attribute.type = (char *) calloc(strlen(pch), sizeof(char));
     strcpy(new_attribute.type, pch);
     new_attribute.length = 0;
   }
   else
   {
-    free(pch);
     return NULL;
   }
 
   crel_attr_p new_attribute_p = &new_attribute;
 
-  free(pch);
   return new_attribute_p;
 }
 
@@ -169,7 +168,7 @@ int rem_attr(crel_table_p target, int attribute_no)
   target->attribute_count--;
 
   if((target->attribute_list = (crel_attr_p *) realloc(target->attribute_list, \
-    target->attribute_count*(sizeof(crel_attr_p)))) == NULL)
+    (target->attribute_count)*(sizeof(crel_attr_p)))) == NULL)
   {
     return ERROR_BADALLOC;
   }
@@ -184,7 +183,7 @@ int insert_rel(crel_table_p target, crel_relation_p relation)
 
   //  reallocate memory in the array
   if((target->relations = (crel_relation_p *) realloc(target->relations, \
-    target->relation_count*(sizeof(crel_relation_p)))) == NULL)
+    (target->relation_count)*(sizeof(crel_relation_p)))) == NULL)
   {
     return ERROR_BADALLOC;
   }
@@ -235,6 +234,9 @@ char * crel_table_to_string(crel_table_p table)
 char * crel_attr_to_string(crel_attr_p attribute)
 {
   char *to_string, *int_to_string;
+
+  to_string = (char *) calloc(256, sizeof(char));
+
   strcat(to_string, attribute->name);
   strcat(to_string, " ");
   strcat(to_string, attribute->type);
