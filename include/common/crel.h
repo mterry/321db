@@ -1,76 +1,70 @@
-#ifndef _C_REL_
-#define _C_REL_
+#ifndef _CREL_H_
+#define _CREL_H_
 //  crel.h
-//  Relational data structure and functions for manipulating relations in C
+//  Header file for a basic relational data structure in C
 //  Matthew A. Terry (terrym@uwindsor.ca)
 //  ===========================================================================
-//  include statements
-#include <string.h>
-#include <stdlib.h>
 #include "error.h"
+#include <string.h>
+#include <limits.h>
+#include <float.h>
+#include <stdlib.h>
 
-//  Implementation notes:
-//    Relations are organized into tables, which have a number of elements:
-//      - table name (string)
-//      - data storage location (string)
-//      - attribute definitions
-//        - attribute name (string)
-//        - attribute length (int)
-//        - attribute constraints
-//          - primary key
-
-//  attribute constraints structure definition:
-struct crel_attr_constraints
-{
-  unsigned char primary_key : 1;
-  unsigned char foreign_key : 1;
-  struct crel * foreign_key_p;
-};
-typedef struct crel_attr_constraints * crel_attr_constraints_t;
-
-//  attribute structure definition:
+//  data types for attributes
 struct crel_attr
 {
   char *name;
   char *type;
-  int len;
-  crel_attr_constraints_t constraints;
+  int length;
 };
-typedef struct crel_attr * crel_attr_t;
+typedef struct crel_attr crel_attr_t;
+typedef crel_attr_t * crel_attr_p;
 
-//  relation table structure definition
-struct crel
+//  data types for relations
+union crel_data
+{
+  char c_content[255];
+  int i_content;
+  double f_content;
+};
+typedef union crel_data crel_data_t;
+typedef crel_data_t * crel_data_p;
+
+struct crel_relation
+{
+  crel_data_p fields;
+};
+typedef struct crel_relation crel_relation_t;
+typedef crel_relation_t * crel_relation_p;
+
+//  data type for the table itself
+struct crel_table
 {
   char *name;
   char *loc;
-  int attr_list_len;
-  crel_attr_t *attr_list;
+  int relation_count;
+  int attribute_count;
+  crel_attr_p *attribute_list;
+  crel_relation_p *relations;
 };
-typedef struct crel * crel_t;
+typedef struct crel_table crel_table_t;
+typedef crel_table_t * crel_table_p;
 
-//  function declarations
-//  creating a new relational table; returns the new table
-crel_t new_reltable(char *, char *);
-//  delete a relational table; returns the delected table with all other
-//  references removed;
-crel_t rem_reltable(crel_t);
+//  new relation; returns a pointer to the created relation with a stored 1D array
+//    of crel_data_t;
+crel_relation_p new_relation(crel_attr_p *, char *);
+//  new table; returns a pointer to the created table with a variable number of 
+//    relations stored
+crel_table_p new_table(char *, char *);
+//  new attribute; returns a pointer to the created attribute
+crel_attr_p new_attribute(char *);
 
-//  add attribute to a table; returns 0 for successful
-crel_attr_t add_attribute(crel_t, char *, char *, int);
-//  remove attribute from a table; returns the removed attribute if successful,
-//  NULL for failure
-crel_attr_t rem_attribute(crel_t, crel_attr_t);
-//  change attribute name; returns 0 for successful, error_code for failure
-int ch_attr_name(crel_attr_t, char *);
-//  change attribute type; returns 0 for successful, error_code for failure
-int ch_attr_type(crel_attr_t, char *);
-
-//  set an attribute to be a primary key; returns 0 for successful
-int set_primary_key(crel_attr_t);
-//  remove the primary key status for an attribute; returns 0 for successful
-int rem_primary_key(crel_attr_t);
-//  set an attribute to be a foreign key; returns 0 for successful
-int set_foreign_key(crel_attr_t, crel_t);
-//  remove the foreign key status for an attribute; returns 0 for successful
-int rem_foreign_key(crel_attr_t);
+//  insert attribute to table
+int insert_attr(crel_table_p, crel_attr_p);
+//  remove attribute from table
+int rem_attr(crel_table_p, int);
+//  insert relation to table
+int insert_rel(crel_table_p, crel_relation_p);
+//  remove relation from table
+int rem_rel(crel_table_p, int);
 #endif
