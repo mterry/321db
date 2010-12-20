@@ -6,12 +6,16 @@
 //  ===========================================================================
 #include <curses.h>
 #include <form.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "error.h"
 #include "crel.h"
 
-// dbcompile menu
+//  dbcompile menu
 int run_dbfill();
+
+//  read in the file at the given .dic file and reconstruct the table based off the
+//    content given there
+crel_table_p build_table(char *);
+//  read in the .lst file given and build new relations and insert them into the
+//    database
+int build_relations(crel_table_p, char *);
 #endif

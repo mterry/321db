@@ -1,5 +1,5 @@
 S
-/home/mat/prog/cs321/321db/etc/db_store/db_file/s.dat
+/home/mat/prog/cs321/321db/etc/db_store/db_file/S.dat
 SNO CHAR 3 PRIMARY
 SNAME CHAR 10
 STATUS INT

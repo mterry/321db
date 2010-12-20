@@ -13,6 +13,8 @@ Features:     - Takes dbscript files and compiles them into a database dictionar
                 - updating and removing relations
 ===============================================================================
 How to install:
+  - AT PRESENT: DO NOT INSTALL -- this project may potentially cause serious
+    damage to the memory contents of your system.
   - Install on a Unix or Unix-like system (this can include Cygwin)
   - Download the version tar-ball from http://github.com/mterry/321db
     - Alternatively download the most recent build using git
@@ -20,8 +22,8 @@ How to install:
   - Change your working directory to the untarred project
   - Run make using the makefile included with the project
     - Target all will build the entire project
-  - Run make install to move the project binaries to the system
-    - You will need to be root to do this
+  - Run the project by running ./bin/321db
+    - HEAVILY RECOMMENDED TO NOT DO THIS AT PRESENT
 ===============================================================================
 FAQ:
   Q:  Why is the <insert module here> menu not reading in the location I
@@ -56,7 +58,10 @@ FAQ:
         github for more details. If anyone wishes to correct this issue,
         or has any information on why it is occuring, please feel free to
         comment on the issue or submit a commit which will correct the bug.
-  Q:  
+  Q: Why is <insert module name> not complete?
+    A:  Due to time constraints and poor time management, and the aforementioned
+        memory corruption error, my time was slowly eaten up over the course of
+        the project timeline, until there was no time left.
 ===============================================================================
 Changelog:
 10/12/19:
